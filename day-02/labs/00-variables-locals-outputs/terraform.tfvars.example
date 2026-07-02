@@ -1,0 +1,11 @@
+project_name = "bharisagar-platform"
+environment  = "dev"
+aws_region   = "ap-south-1"
+owner_name   = "bharisagar-student"
+cost_center  = "terraform-learning"
+web_ports    = [80, 443]
+
+extra_tags = {
+  Training = "Day-02"
+  Purpose  = "Variables-Locals-Outputs"
+}
