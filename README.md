@@ -36,7 +36,10 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 .
 |-- README.md
 |-- CURRICULUM.md
-`-- day-01/
+|-- day-01/
+|   |-- README.md
+|   `-- labs/
+`-- day-02/
     |-- README.md
     `-- labs/
 ```
@@ -49,6 +52,11 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 4. Destroy paid AWS resources when the lab is complete.
 5. Commit your learning changes with small messages, because infrastructure history matters.
 
+## Progress
+
+- Day 1: Complete
+- Day 2: In progress
+
 ## Safety Rules
 
 - Never commit AWS access keys.
@@ -56,4 +64,3 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Never run `terraform apply` without reading the plan.
 - Prefer small changes over giant applies.
 - Destroy temporary labs when you are done.
-
