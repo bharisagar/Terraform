@@ -1,0 +1,40 @@
+# Terraform working directories
+.terraform/
+
+# Terraform state must never be committed
+*.tfstate
+*.tfstate.*
+
+# Plan files may contain sensitive values
+*.tfplan
+*.plan
+
+# Local variable files can contain account-specific values or secrets
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Override files are usually local-only
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI config can include credentials
+.terraformrc
+terraform.rc
+
+# Generated lab artifacts
+generated/
+hello-terraform.txt
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
