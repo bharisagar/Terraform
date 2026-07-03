@@ -1,0 +1,9 @@
+terraform {
+  backend "s3" {
+    bucket       = "REPLACE_WITH_BUCKET_FROM_LAB_01"
+    key          = "day-04/migration-practice/terraform.tfstate"
+    region       = "ap-south-1"
+    profile      = "terraform-day4"
+    use_lockfile = true
+  }
+}

@@ -1,0 +1,5 @@
+aws_region                 = "ap-south-1"
+aws_profile                = "terraform-day4"
+bucket_prefix              = "bharisagar-tf-state"
+owner_name                 = "bharisagar-student"
+force_destroy_state_bucket = false

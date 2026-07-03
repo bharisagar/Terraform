@@ -63,7 +63,7 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Day 1: Complete
 - Day 2: Complete
 - Day 3: Complete
-- Day 4: In progress
+- Day 4: Complete
 
 ## Safety Rules
 
@@ -72,3 +72,4 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Never run `terraform apply` without reading the plan.
 - Prefer small changes over giant applies.
 - Destroy temporary labs when you are done.
+
