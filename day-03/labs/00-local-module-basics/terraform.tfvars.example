@@ -1,0 +1,9 @@
+project_name    = "bharisagar-platform"
+environment     = "dev"
+owner_name      = "bharisagar-student"
+component_names = ["network", "web", "database"]
+
+extra_tags = {
+  Training = "Day-03"
+  Purpose  = "Local-Module-Basics"
+}
