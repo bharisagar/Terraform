@@ -22,7 +22,7 @@ By the end of this course, a student should be able to:
 | --- | --- | --- |
 | Day 1 | Terraform foundations, installation, AWS connection, first resource | Local warm-up and first AWS EC2 lab |
 | Day 2 | Providers, variables, outputs, data sources, and VPC thinking | Custom VPC with public subnet and EC2 |
-| Day 3 | Reusable infrastructure with modules | EC2 module and network module |
+| Day 3 | Reusable infrastructure with modules | Modular network and EC2 web server |
 | Day 4 | State, backends, locking, and team workflow | S3 backend with DynamoDB locking |
 | Day 5 | Provisioning, user data, and app bootstrap | Web server deployment with startup automation |
 | Day 6 | Environments and workspaces | Dev and prod environment pattern |
@@ -39,7 +39,10 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 |-- day-01/
 |   |-- README.md
 |   `-- labs/
-`-- day-02/
+|-- day-02/
+|   |-- README.md
+|   `-- labs/
+`-- day-03/
     |-- README.md
     `-- labs/
 ```
@@ -56,6 +59,7 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 
 - Day 1: Complete
 - Day 2: Complete
+- Day 3: In progress
 
 ## Safety Rules
 
@@ -64,4 +68,3 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Never run `terraform apply` without reading the plan.
 - Prefer small changes over giant applies.
 - Destroy temporary labs when you are done.
-
