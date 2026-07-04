@@ -1,0 +1,9 @@
+message = "Day 5 local-exec ran successfully."
+
+# Windows default:
+local_exec_interpreter = ["PowerShell", "-NoProfile", "-Command"]
+local_exec_command     = "New-Item -ItemType Directory -Force generated | Out-Null; Set-Content -Path generated/local-exec-demo.txt -Value $env:DEMO_MESSAGE"
+
+# macOS/Linux alternative:
+# local_exec_interpreter = ["/bin/sh", "-c"]
+# local_exec_command     = "mkdir -p generated && printf '%s\n' \"$DEMO_MESSAGE\" > generated/local-exec-demo.txt"
