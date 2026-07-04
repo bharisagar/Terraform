@@ -1,0 +1,29 @@
+# Terraform working directories
+**/.terraform/
+
+# Local state and backups
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfstate.d/
+
+# Plans, crashes, and overrides
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Demo-generated files
+**/.bucket-name
+**/created_servers.log
+**/destroyed_servers.log
+
+# Secrets and local machine files
+*.pem
+*.ppk
+.DS_Store
+Thumbs.db
