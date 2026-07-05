@@ -25,7 +25,7 @@ By the end of this course, a student should be able to:
 | Day 3 | Reusable infrastructure with modules | Modular network and EC2 web server |
 | Day 4 | State, backends, locking, and team workflow | S3 backend bootstrap and state migration practice |
 | Day 5 | Provisioning, user data, and app bootstrap | Local provisioner demo and EC2 user data web app |
-| Day 6 | Environments and workspaces | Dev and prod environment pattern |
+| Day 6 | Environments and workspaces | Workspace basics and dev/prod tfvars pattern |
 | Day 7 | Security, policy, secrets, and production checklist | Secure Terraform workflow and final review |
 
 After Day 7, we will build a larger AI-through-Terraform project on AWS.
@@ -37,20 +37,12 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 |-- README.md
 |-- CURRICULUM.md
 |-- day-01/
-|   |-- README.md
-|   `-- labs/
 |-- day-02/
-|   |-- README.md
-|   `-- labs/
 |-- day-03/
-|   |-- README.md
-|   `-- labs/
 |-- day-04/
-|   |-- README.md
-|   `-- labs/
-`-- day-05/
-    |-- README.md
-    `-- labs/
+|-- day-05/
+|-- day-06/
+`-- day-07/
 ```
 
 ## How Students Should Use This Repo
@@ -68,6 +60,7 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Day 3: Complete
 - Day 4: Complete
 - Day 5: Complete
+- Day 6: In progress
 
 ## Safety Rules
 
@@ -76,4 +69,3 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Never run `terraform apply` without reading the plan.
 - Prefer small changes over giant applies.
 - Destroy temporary labs when you are done.
-
