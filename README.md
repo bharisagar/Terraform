@@ -26,7 +26,7 @@ By the end of this course, a student should be able to:
 | Day 4 | State, backends, locking, and team workflow | S3 backend bootstrap and state migration practice |
 | Day 5 | Provisioning, user data, and app bootstrap | Local provisioner demo and EC2 user data web app |
 | Day 6 | Environments and workspaces | Workspace basics and dev/prod tfvars pattern |
-| Day 7 | Security, policy, secrets, and production checklist | Secure Terraform workflow and final review |
+| Day 7 | Security, policy, secrets, and production checklist | Sensitive values and readiness checks |
 
 After Day 7, we will build a larger AI-through-Terraform project on AWS.
 
@@ -42,7 +42,8 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 |-- day-04/
 |-- day-05/
 |-- day-06/
-`-- day-07/
+|-- day-07/
+`-- terraform-2hour-practical/
 ```
 
 ## How Students Should Use This Repo
@@ -60,7 +61,8 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Day 3: Complete
 - Day 4: Complete
 - Day 5: Complete
-- Day 6: In progress
+- Day 6: Complete
+- Day 7: Complete
 
 ## Safety Rules
 
@@ -69,3 +71,4 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 - Never run `terraform apply` without reading the plan.
 - Prefer small changes over giant applies.
 - Destroy temporary labs when you are done.
+
