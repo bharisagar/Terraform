@@ -30,6 +30,14 @@ resource "aws_subnet" "public" {
     Name = "${var.name_prefix}-public-subnet"
     Tier = "public"
   })
+
+  lifecycle {
+    precondition {
+      condition = join(".", slice(split(".", split("/", var.vpc_cidr)[0]), 0, 2)) == join(".", slice(split(".", split("/", var.public_subnet_cidr)[0]), 0, 2))
+
+      error_message = "public_subnet_cidr must be a /24 subnet inside the /16 vpc_cidr, for example 10.30.1.0/24 inside 10.30.0.0/16."
+    }
+  }
 }
 
 resource "aws_route_table" "public" {

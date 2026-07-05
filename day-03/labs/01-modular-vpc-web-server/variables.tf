@@ -59,8 +59,8 @@ variable "vpc_cidr" {
   default     = "10.30.0.0/16"
 
   validation {
-    condition     = can(cidrnetmask(var.vpc_cidr))
-    error_message = "vpc_cidr must be a valid CIDR block, for example 10.30.0.0/16."
+    condition     = can(cidrnetmask(var.vpc_cidr)) && can(regex("/16$", var.vpc_cidr))
+    error_message = "vpc_cidr must be a valid /16 CIDR block for this beginner lab, for example 10.30.0.0/16."
   }
 }
 
@@ -70,8 +70,8 @@ variable "public_subnet_cidr" {
   default     = "10.30.1.0/24"
 
   validation {
-    condition     = can(cidrnetmask(var.public_subnet_cidr))
-    error_message = "public_subnet_cidr must be a valid CIDR block, for example 10.30.1.0/24."
+    condition     = can(cidrnetmask(var.public_subnet_cidr)) && can(regex("/24$", var.public_subnet_cidr))
+    error_message = "public_subnet_cidr must be a valid /24 CIDR block for this beginner lab, for example 10.30.1.0/24."
   }
 }
 

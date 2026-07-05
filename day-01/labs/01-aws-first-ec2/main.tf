@@ -70,7 +70,7 @@ resource "aws_security_group" "day1_private" {
 resource "aws_instance" "day1" {
   ami                         = data.aws_ami.amazon_linux_2023.id
   instance_type               = var.instance_type
-  subnet_id                   = data.aws_subnets.default.ids[0]
+  subnet_id                   = sort(data.aws_subnets.default.ids)[0]
   vpc_security_group_ids      = [aws_security_group.day1_private.id]
   associate_public_ip_address = false
   monitoring                  = false
