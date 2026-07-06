@@ -23,7 +23,7 @@ This curriculum is designed for students who are starting from scratch but want 
 
 **Outcome**
 
-Students can explain the Terraform lifecycle and run a small project safely.
+Students can explain the core Terraform workflow and run a small project safely.
 
 ## Day 2: AWS Provider, Variables, Outputs, and VPC Basics
 
@@ -69,7 +69,7 @@ Students can create a small but understandable AWS network and compute stack.
 
 Students can package infrastructure logic and reuse it with different inputs.
 
-## Day 4: State, Remote Backend, and Locking
+## Day 4: State, Lifecycle Arguments, Remote Backend, and Locking
 
 **Mindset:** State is Terraform's memory. If teams mishandle it, infrastructure becomes risky.
 
@@ -78,19 +78,23 @@ Students can package infrastructure logic and reuse it with different inputs.
 - Local state.
 - Remote state.
 - S3 backend.
-- DynamoDB state locking.
+- S3 lock files and DynamoDB legacy locking notes.
 - State drift.
+- Terraform lifecycle meta-argument.
+- `create_before_destroy`, `prevent_destroy`, `ignore_changes`, and `replace_triggered_by`.
+- `precondition` and `postcondition` checks.
 - Importing existing resources.
 
 **Hands-on**
 
+- Run a local lifecycle arguments lab.
 - Create S3 backend infrastructure.
 - Migrate a lab project to remote state.
 - Demonstrate a plan after state migration.
 
 **Outcome**
 
-Students understand why production Terraform needs remote state and locking.
+Students understand how state, locking, drift, and lifecycle rules make Terraform safer for production teams.
 
 ## Day 5: Provisioning and App Bootstrap
 

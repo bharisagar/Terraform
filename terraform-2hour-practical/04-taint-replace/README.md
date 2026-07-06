@@ -1,8 +1,8 @@
-# Topic 4: Force Replacement With -replace
+# Topic 4: Force Replacement And Lifecycle
 
 ## Goal
 
-Force Terraform to rebuild one resource even when the code has not changed.
+Force Terraform to rebuild one resource even when the code has not changed, and understand why the resource uses `ignore_changes`.
 
 ## Key Concept
 
@@ -13,6 +13,16 @@ Example address:
 ```text
 aws_instance.app_server
 ```
+
+This topic also uses a lifecycle rule:
+
+```hcl
+lifecycle {
+  ignore_changes = [tags["CreatedAt"]]
+}
+```
+
+The `CreatedAt` tag uses `timestamp()`. Without `ignore_changes`, Terraform would keep seeing a new timestamp value and could create noisy plans. This is a controlled example of ignoring one selected attribute.
 
 ## Run The Demo
 
@@ -72,6 +82,7 @@ Do not use `-replace` for permanent configuration changes. Change the Terraform 
 - What does `-/+` mean in a Terraform plan?
 - Why did the EC2 ID change?
 - Why did the Elastic IP stay the same?
+- Why does the EC2 resource ignore changes to `tags["CreatedAt"]`?
 
 ## Clean Up
 

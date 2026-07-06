@@ -1,6 +1,6 @@
 # Terraform 2-Hour Practical
 
-Instructor-friendly Terraform labs for students who already know the basic `init -> plan -> apply -> destroy` workflow and now need to understand the real-world operational topics: workspaces, drift, import, forced replacement, provisioners, state, and locking.
+Instructor-friendly Terraform labs for students who already know the basic `init -> plan -> apply -> destroy` workflow and now need to understand the real-world operational topics: workspaces, drift, import, forced replacement, lifecycle arguments, provisioners, state, and locking.
 
 This folder is intended to be pushed into the existing GitHub repo as a separate directory:
 
@@ -18,6 +18,7 @@ By the end of this practical, students should be able to explain and demonstrate
 - How `terraform plan` detects drift when real AWS infrastructure no longer matches code.
 - How `terraform import` brings an existing manually-created resource under Terraform control.
 - How `terraform apply -replace=...` recreates a broken resource without changing the code.
+- How lifecycle arguments such as `ignore_changes` affect Terraform plans.
 - How provisioners work, when they run, and why they should be used carefully.
 - How remote state in S3 enables team collaboration.
 - How state locking prevents two people from writing the same state at the same time.
@@ -29,7 +30,7 @@ terraform-2hour-practical/
 |-- 01-workspaces/       # Same code, different environments
 |-- 02-drift/            # Detect and correct manual AWS changes
 |-- 03-import/           # Bring existing AWS resources under Terraform
-|-- 04-taint-replace/    # Force resource replacement
+|-- 04-taint-replace/    # Force resource replacement and lifecycle behavior
 |-- 05-provisioners/     # local-exec, file, remote-exec, null_resource
 `-- 06-state-backend/    # S3 remote state and state locking
 ```
@@ -114,7 +115,7 @@ That avoids hardcoding an AMI ID that becomes stale. If a demo needs to match a 
 | 0:00-0:25 | `01-workspaces` | Workspaces | Same code can create isolated `dev`, `staging`, and `prod` resources. |
 | 0:25-0:35 | `02-drift` | Drift | `terraform plan` compares state, code, and real infrastructure. |
 | 0:35-0:45 | `03-import` | Import | Existing resources can enter Terraform state without being recreated. |
-| 0:45-0:55 | `04-taint-replace` | Replacement | `-replace` forces a clean resource rebuild. |
+| 0:45-0:55 | `04-taint-replace` | Replacement + lifecycle | `-replace` forces a clean resource rebuild and `ignore_changes` controls selected drift. |
 | 0:55-1:15 | `05-provisioners` | Provisioners | Terraform can run local and remote commands, but this is a last-resort tool. |
 | 1:15-1:40 | `06-state-backend` | Remote state | Teams use shared state and locking to avoid state corruption. |
 | 1:40-2:00 | All | Challenge + Q&A | Students repeat key workflows without the instructor driving. |
@@ -180,6 +181,19 @@ This practical uses variables for region, instance type, SSH key names, and opti
 ### Data Sources
 
 Data sources read information that already exists outside Terraform. The labs use the AWS SSM parameter data source to read the latest Amazon Linux 2023 AMI ID instead of hardcoding an old AMI.
+
+### Lifecycle Meta-Argument
+
+The `lifecycle` block changes how Terraform handles one resource during planning and apply.
+
+Important examples:
+
+- `create_before_destroy`: create the replacement before deleting the old object.
+- `prevent_destroy`: block plans that would delete a protected object.
+- `ignore_changes`: ignore selected argument drift after creation.
+- `replace_triggered_by`: replace one resource when another managed resource changes.
+
+Use lifecycle arguments deliberately. They are safety tools, but they can also hide drift or make cleanup harder when used without a clear reason.
 
 ## Topic 1: Workspaces
 
@@ -312,6 +326,16 @@ This destroys the imported EC2 instance because it is now managed by Terraform.
 Folder: `04-taint-replace`
 
 Sometimes the code is correct but the real resource is unhealthy. `terraform apply -replace=ADDRESS` tells Terraform to destroy and recreate that one resource.
+
+This topic also includes a lifecycle example:
+
+```hcl
+lifecycle {
+  ignore_changes = [tags["CreatedAt"]]
+}
+```
+
+That prevents the changing timestamp tag from causing noisy plans after creation.
 
 Run:
 

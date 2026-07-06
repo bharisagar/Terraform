@@ -1,8 +1,8 @@
-# Day 4: State, Backends, Locking, and Team Workflow
+# Day 4: State, Lifecycle Arguments, Backends, Locking, and Team Workflow
 
 Welcome to Day 4.
 
-Day 1 taught the Terraform workflow. Day 2 built AWS infrastructure. Day 3 introduced modules. Day 4 teaches the part that makes Terraform safe for teams: state management.
+Day 1 taught the Terraform workflow. Day 2 built AWS infrastructure. Day 3 introduced modules. Day 4 teaches the parts that make Terraform safer for teams: state management and lifecycle controls.
 
 This is the day students stop treating `terraform.tfstate` as a random generated file and start treating it as Terraform's source of memory.
 
@@ -19,6 +19,9 @@ By the end of Day 4, you should be able to:
 - Understand why DynamoDB locking is now legacy/deprecated for the S3 backend.
 - Practice the steps for migrating local state to an S3 backend.
 - Explain drift and how teams detect it.
+- Explain Terraform lifecycle arguments in simple words.
+- Use `create_before_destroy`, `ignore_changes`, `replace_triggered_by`, and `prevent_destroy` safely.
+- Understand when lifecycle arguments solve a real problem and when they can hide risk.
 
 ## Why State Exists
 
@@ -43,6 +46,32 @@ vpc-0123456789abcdef0
 ```
 
 Without state, Terraform cannot reliably know which real object belongs to which resource block.
+
+## Terraform Workflow Lifecycle vs lifecycle Block
+
+People use the word lifecycle in two different ways with Terraform.
+
+The first meaning is the basic command workflow:
+
+```text
+init -> plan -> apply -> destroy
+```
+
+That is the lifecycle of a Terraform run.
+
+The second meaning is the `lifecycle` block inside a resource:
+
+```hcl
+resource "aws_security_group" "web" {
+  # ...
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+
+That block changes how Terraform handles one resource during create, update, replacement, or destroy.
 
 ## What State Can Contain
 
@@ -150,6 +179,36 @@ secret_key = "..."
 
 Prefer AWS profiles, environment variables, or IAM roles.
 
+## Terraform Lifecycle Arguments
+
+The `lifecycle` block is a resource-level control. It tells Terraform how to behave when a resource needs to change.
+
+Important lifecycle rules:
+
+| Rule | Simple Meaning | Common Use |
+| --- | --- | --- |
+| `create_before_destroy` | Create the replacement first, then destroy the old resource | Reduce downtime when names can be unique |
+| `prevent_destroy` | Reject a plan that would destroy the resource | Protect databases, state buckets, and critical resources |
+| `ignore_changes` | Ignore selected argument drift after creation | Let another system manage selected tags or metadata |
+| `replace_triggered_by` | Replace this resource when another managed resource changes | Rebuild dependents when Terraform cannot infer the relationship |
+| `precondition` | Check something before Terraform acts | Fail early if an input or dependency is unsafe |
+| `postcondition` | Check something after Terraform reads or creates a resource | Stop downstream resources when a result is unsafe |
+
+Example:
+
+```hcl
+resource "aws_instance" "app" {
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+
+  lifecycle {
+    ignore_changes = [tags["LastPatchedBy"]]
+  }
+}
+```
+
+Lifecycle rules are powerful, but they should be used with a clear reason. For example, `ignore_changes` can be helpful for shared ownership, but it can also hide real drift if used carelessly.
+
 ## State Locking Mental Model
 
 ```mermaid
@@ -222,6 +281,16 @@ day-04/labs/00-local-state-lifecycle
 
 This lab creates a local file and teaches state inspection commands.
 
+### Lab 03: Terraform Lifecycle Arguments
+
+Path:
+
+```text
+day-04/labs/03-lifecycle-arguments
+```
+
+This lab uses local files to demonstrate lifecycle rules without creating AWS resources.
+
 ### Lab 01: S3 Backend Bootstrap
 
 Path:
@@ -250,6 +319,9 @@ This lab shows how to migrate a simple local-state project to S3 using `terrafor
 - Block public access on state buckets.
 - Use S3 lock files with `use_lockfile = true`.
 - Keep backend credentials out of Terraform code.
+- Use lifecycle arguments only when the reason is obvious from the code review.
+- Do not use `ignore_changes` to hide unmanaged drift that the team should fix.
+- Use `prevent_destroy` sparingly and document the cleanup process.
 - Treat state migration as a reviewed operation.
 - Do not move resources into modules after apply without state planning.
 
@@ -265,4 +337,8 @@ You are done with Day 4 when you can answer these:
 - Why is DynamoDB locking considered legacy for S3 backend now?
 - What command migrates state to a new backend?
 - What is drift?
+- What does `create_before_destroy` do?
+- When is `prevent_destroy` useful?
+- Why can `ignore_changes` be risky?
+- What does `replace_triggered_by` force Terraform to do?
 - How should teams review Terraform plans?

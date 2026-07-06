@@ -9,7 +9,7 @@ Bharisagar Terraform AWS: Zero to Pro is now complete from Day 1 to Day 7.
 | Day 1 | Terraform foundations | Run the Terraform workflow and create a first AWS EC2 lab safely. |
 | Day 2 | Providers, variables, outputs, data sources | Build a custom VPC public web server pattern. |
 | Day 3 | Modules | Refactor infrastructure into reusable local modules. |
-| Day 4 | State and backends | Understand local state, S3 backend bootstrap, locking, and migration. |
+| Day 4 | State, lifecycle arguments, and backends | Understand local state, lifecycle rules, S3 backend bootstrap, locking, and migration. |
 | Day 5 | Provisioning | Compare provisioners with user data and bootstrap a web app. |
 | Day 6 | Environments | Use workspaces and tfvars patterns for dev/prod thinking. |
 | Day 7 | Security readiness | Handle sensitive values and review production readiness. |
@@ -24,6 +24,7 @@ Students who finish this course can:
 - Create AWS networking and EC2 patterns.
 - Build and consume local modules.
 - Protect and migrate Terraform state.
+- Use lifecycle arguments such as `create_before_destroy`, `ignore_changes`, and `replace_triggered_by`.
 - Understand workspaces and environment values.
 - Avoid common secrets and provisioning mistakes.
 - Review infrastructure before production apply.
