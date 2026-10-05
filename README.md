@@ -55,6 +55,12 @@ After Day 7, we will build a larger AI-through-Terraform project on AWS.
 4. Destroy paid AWS resources when the lab is complete.
 5. Commit your learning changes with small messages, because infrastructure history matters.
 
+## GitHub Actions
+
+This repo includes a GitHub Actions workflow that checks Day 1 to Day 7 labs with `terraform fmt`, `terraform init -backend=false`, and `terraform validate`.
+
+Read [GITHUB-ACTIONS.md](GITHUB-ACTIONS.md) for the safe CI/CD approach and why training labs should not auto-apply AWS resources.
+
 ## Progress
 
 - Day 1: Complete

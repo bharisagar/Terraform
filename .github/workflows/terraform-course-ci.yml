@@ -1,0 +1,133 @@
+name: Terraform Course CI
+
+on:
+  pull_request:
+    paths:
+      - "day-*/**"
+      - ".github/workflows/terraform-course-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "day-*/**"
+      - ".github/workflows/terraform-course-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-course-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TERRAFORM_VERSION: "1.16.5"
+
+jobs:
+  fmt:
+    name: Terraform fmt
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Check formatting for all days
+        run: terraform fmt -check -diff -recursive day-01 day-02 day-03 day-04 day-05 day-06 day-07
+
+  validate:
+    name: Validate ${{ matrix.day }} / ${{ matrix.lab }}
+    runs-on: ubuntu-latest
+    needs: fmt
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - day: day-01
+            lab: 00-local-warmup
+            path: day-01/labs/00-local-warmup
+          - day: day-01
+            lab: 01-aws-first-ec2
+            path: day-01/labs/01-aws-first-ec2
+          - day: day-02
+            lab: 00-variables-locals-outputs
+            path: day-02/labs/00-variables-locals-outputs
+          - day: day-02
+            lab: 01-vpc-public-web-server
+            path: day-02/labs/01-vpc-public-web-server
+          - day: day-03
+            lab: 00-local-module-basics
+            path: day-03/labs/00-local-module-basics
+          - day: day-03
+            lab: 01-modular-vpc-web-server
+            path: day-03/labs/01-modular-vpc-web-server
+          - day: day-04
+            lab: 00-local-state-lifecycle
+            path: day-04/labs/00-local-state-lifecycle
+          - day: day-04
+            lab: 01-s3-backend-bootstrap
+            path: day-04/labs/01-s3-backend-bootstrap
+          - day: day-04
+            lab: 02-s3-backend-migration-practice
+            path: day-04/labs/02-s3-backend-migration-practice
+          - day: day-04
+            lab: 03-lifecycle-arguments
+            path: day-04/labs/03-lifecycle-arguments
+          - day: day-05
+            lab: 00-local-exec-provisioner
+            path: day-05/labs/00-local-exec-provisioner
+          - day: day-05
+            lab: 01-ec2-user-data-web-app
+            path: day-05/labs/01-ec2-user-data-web-app
+          - day: day-06
+            lab: 00-workspace-basics
+            path: day-06/labs/00-workspace-basics
+          - day: day-06
+            lab: 01-tfvars-environment-pattern
+            path: day-06/labs/01-tfvars-environment-pattern
+          - day: day-07
+            lab: 00-sensitive-values-demo
+            path: day-07/labs/00-sensitive-values-demo
+          - day: day-07
+            lab: 01-production-readiness-checks
+            path: day-07/labs/01-production-readiness-checks
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform init without backend
+        run: terraform init -backend=false -input=false -no-color
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+
+      - name: Add validation summary
+        if: always()
+        run: |
+          {
+            echo "### ${{ matrix.day }} / ${{ matrix.lab }}"
+            echo ""
+            echo "- Path: \`${{ matrix.path }}\`"
+            echo "- Terraform version: \`${{ env.TERRAFORM_VERSION }}\`"
+            echo "- Backend access: disabled with \`terraform init -backend=false\`"
+          } >> "$GITHUB_STEP_SUMMARY"
