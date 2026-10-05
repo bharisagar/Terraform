@@ -10,9 +10,14 @@ variable "aws_region" {
 }
 
 variable "aws_profile" {
-  description = "Named AWS CLI profile used by the AWS provider."
+  description = "Optional named AWS CLI profile used by the AWS provider for local runs. Leave null in CI so the provider uses environment credentials."
   type        = string
-  default     = "terraform-day4"
+  default     = null
+
+  validation {
+    condition     = var.aws_profile == null ? true : length(trimspace(var.aws_profile)) >= 2
+    error_message = "aws_profile must be null or a non-empty AWS CLI profile name."
+  }
 }
 
 variable "bucket_prefix" {

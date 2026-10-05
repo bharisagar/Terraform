@@ -1,0 +1,222 @@
+name: Terraform Lab Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      lab:
+        description: "Specific Day 1 to Day 7 lab to run"
+        required: true
+        type: choice
+        options:
+          - day-01/labs/00-local-warmup
+          - day-01/labs/01-aws-first-ec2
+          - day-02/labs/00-variables-locals-outputs
+          - day-02/labs/01-vpc-public-web-server
+          - day-03/labs/00-local-module-basics
+          - day-03/labs/01-modular-vpc-web-server
+          - day-04/labs/00-local-state-lifecycle
+          - day-04/labs/01-s3-backend-bootstrap
+          - day-04/labs/02-s3-backend-migration-practice
+          - day-04/labs/03-lifecycle-arguments
+          - day-05/labs/00-local-exec-provisioner
+          - day-05/labs/01-ec2-user-data-web-app
+          - day-06/labs/00-workspace-basics
+          - day-06/labs/01-tfvars-environment-pattern
+          - day-07/labs/00-sensitive-values-demo
+          - day-07/labs/01-production-readiness-checks
+      command:
+        description: "Terraform command to run"
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+      aws_region:
+        description: "AWS region for AWS labs"
+        required: true
+        default: ap-south-1
+        type: string
+      confirm_resource_change:
+        description: "Type yes for apply or destroy. Plan can keep the default no."
+        required: true
+        default: "no"
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-lab-runner-${{ inputs.lab }}
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TF_VAR_aws_region: ${{ inputs.aws_region }}
+  AWS_REGION: ${{ inputs.aws_region }}
+  AWS_DEFAULT_REGION: ${{ inputs.aws_region }}
+  TERRAFORM_VERSION: "1.16.5"
+
+jobs:
+  terraform-lab:
+    name: ${{ inputs.command }} ${{ inputs.lab }}
+    runs-on: ubuntu-latest
+    environment: terraform-labs
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Detect lab type
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          lab_path="${{ inputs.lab }}"
+
+          case "$lab_path" in
+            day-*/labs/*) ;;
+            *)
+              echo "Unsupported lab path: $lab_path" >&2
+              exit 1
+              ;;
+          esac
+
+          if [[ ! -d "$lab_path" ]]; then
+            echo "Lab folder does not exist: $lab_path" >&2
+            exit 1
+          fi
+
+          if grep -R --include='*.tf' -E '^[[:space:]]*(provider "aws"|resource "aws_|data "aws_)' "$lab_path" >/dev/null; then
+            echo "uses_aws=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "uses_aws=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "lab_path=$lab_path" >> "$GITHUB_OUTPUT"
+
+      - name: Require confirmation for resource changes
+        if: ${{ inputs.command != 'plan' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ inputs.confirm_resource_change }}" != "yes" ]]; then
+            echo "For apply or destroy, rerun the workflow with confirm_resource_change set to yes." >&2
+            exit 1
+          fi
+
+      - name: Verify AWS runner variables
+        if: ${{ steps.detect.outputs.uses_aws == 'true' }}
+        shell: bash
+        env:
+          AWS_ROLE_TO_ASSUME: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${AWS_ROLE_TO_ASSUME}" ]]; then
+            echo "Set repository or environment variable AWS_ROLE_TO_ASSUME before running AWS labs." >&2
+            exit 1
+          fi
+
+          if [[ -z "${TF_STATE_BUCKET}" ]]; then
+            echo "Set repository or environment variable TF_STATE_BUCKET before running AWS labs." >&2
+            exit 1
+          fi
+
+      - name: Configure AWS credentials from GitHub OIDC
+        if: ${{ steps.detect.outputs.uses_aws == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ inputs.aws_region }}
+          role-session-name: terraform-lab-${{ github.run_id }}
+
+      - name: Prepare S3 backend for AWS labs
+        if: ${{ steps.detect.outputs.uses_aws == 'true' }}
+        shell: bash
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${TF_STATE_BUCKET}" ]]; then
+            echo "Set repository or environment variable TF_STATE_BUCKET before running AWS labs." >&2
+            exit 1
+          fi
+
+          cat > "${{ inputs.lab }}/backend_github_actions.tf" <<'BACKEND'
+          terraform {
+            backend "s3" {}
+          }
+          BACKEND
+
+      - name: Terraform fmt for selected lab
+        working-directory: ${{ inputs.lab }}
+        run: terraform fmt -check -diff -recursive
+
+      - name: Terraform init
+        shell: bash
+        working-directory: ${{ inputs.lab }}
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ steps.detect.outputs.uses_aws }}" == "true" ]]; then
+            terraform init \
+              -input=false \
+              -no-color \
+              -backend-config="bucket=${TF_STATE_BUCKET}" \
+              -backend-config="key=terraform-labs/${{ inputs.lab }}/terraform.tfstate" \
+              -backend-config="region=${{ inputs.aws_region }}" \
+              -backend-config="use_lockfile=true"
+          else
+            terraform init -backend=false -input=false -no-color
+          fi
+
+      - name: Terraform validate
+        working-directory: ${{ inputs.lab }}
+        run: terraform validate -no-color
+
+      - name: Terraform plan
+        if: ${{ inputs.command == 'plan' }}
+        working-directory: ${{ inputs.lab }}
+        run: terraform plan -input=false -no-color
+
+      - name: Terraform apply
+        if: ${{ inputs.command == 'apply' }}
+        working-directory: ${{ inputs.lab }}
+        run: |
+          terraform plan -input=false -no-color -out=tfplan
+          terraform apply -input=false -no-color -auto-approve tfplan
+
+      - name: Terraform destroy
+        if: ${{ inputs.command == 'destroy' }}
+        working-directory: ${{ inputs.lab }}
+        run: terraform destroy -input=false -no-color -auto-approve
+
+      - name: Add run summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Terraform Lab Runner"
+            echo ""
+            echo "- Lab: \`${{ inputs.lab }}\`"
+            echo "- Command: \`${{ inputs.command }}\`"
+            echo "- AWS lab: \`${{ steps.detect.outputs.uses_aws }}\`"
+            echo "- Region: \`${{ inputs.aws_region }}\`"
+            echo "- State key: \`terraform-labs/${{ inputs.lab }}/terraform.tfstate\`"
+          } >> "$GITHUB_STEP_SUMMARY"

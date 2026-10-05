@@ -2,6 +2,11 @@
 
 This repository has many small Terraform labs from Day 1 to Day 7. The best practice is to use GitHub Actions as a quality gate first, not as an automatic AWS deployment engine.
 
+There are two workflows:
+
+- `Terraform Course CI`: automatic safety check for all course labs.
+- `Terraform Lab Runner`: manual workflow for one selected lab, including real `plan`, `apply`, and `destroy`.
+
 ## What Runs Automatically
 
 The workflow in `.github/workflows/terraform-course-ci.yml` runs on:
@@ -51,6 +56,21 @@ For the later AI capstone project, use a stronger workflow:
 - state: use a remote backend with locking
 - secrets: store secrets in GitHub Environments, AWS Secrets Manager, or HCP Terraform
 - branch protection: require the Terraform workflow before merge
+
+## Manual Lab Runner
+
+Use `Terraform Lab Runner` only when you intentionally want to run one lab in real AWS.
+
+Example for Day 1 EC2:
+
+- `lab`: `day-01/labs/01-aws-first-ec2`
+- `command`: `apply`
+- `aws_region`: `ap-south-1`
+- `confirm_resource_change`: `yes`
+
+Run `command: destroy` with the same lab after practice.
+
+Read `REAL-TIME-LAB-RUNNER.md` before using this workflow because it requires GitHub OIDC and an S3 state bucket.
 
 ## Security Rules
 

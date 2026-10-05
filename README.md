@@ -61,6 +61,8 @@ This repo includes a GitHub Actions workflow that checks Day 1 to Day 7 labs wit
 
 Read [GITHUB-ACTIONS.md](GITHUB-ACTIONS.md) for the safe CI/CD approach and why training labs should not auto-apply AWS resources.
 
+For manual real AWS runs, read [REAL-TIME-LAB-RUNNER.md](REAL-TIME-LAB-RUNNER.md). It explains how to run one selected lab, such as the Day 1 EC2 instance, with GitHub OIDC and S3 remote state.
+
 ## Progress
 
 - Day 1: Complete

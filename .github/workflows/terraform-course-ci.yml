@@ -5,12 +5,14 @@ on:
     paths:
       - "day-*/**"
       - ".github/workflows/terraform-course-ci.yml"
+      - ".github/workflows/terraform-lab-runner.yml"
   push:
     branches:
       - main
     paths:
       - "day-*/**"
       - ".github/workflows/terraform-course-ci.yml"
+      - ".github/workflows/terraform-lab-runner.yml"
   workflow_dispatch:
 
 permissions:
